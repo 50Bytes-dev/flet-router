@@ -16,4 +16,4 @@ Flet Router is a lightweight and flexible routing library for Flet (Python). It 
 ## Installation
 
 You can install Flet Router using pip:
-pip install git+https://github.com/50Bytes/flet-router.git
+```pip install git+https://github.com/50Bytes/flet-router.git```
