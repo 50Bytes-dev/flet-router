@@ -13,6 +13,10 @@ Flet Router is a lightweight and flexible routing library for Flet (Python). It 
 - Middleware support
 - Route grouping and prefixing
 
+## Example
+
+See the example in the ```samples``` folder
+
 ## Installation
 
 You can install Flet Router using pip:
