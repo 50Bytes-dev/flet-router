@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "flet-router"
+version = "0.1.0"
+description = "Simple and fast router for Flet"
+authors = ["50bytes.dev <50bytes.dev@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+flet = {path = "../flet/sdk/python/packages/flet", develop = true}
+flet-core = {path = "../flet/sdk/python/packages/flet-core", develop = true}
+flet-runtime = {path = "../flet/sdk/python/packages/flet-runtime", develop = true}
+
+[tool.poetry.dev-dependencies]
+uvicorn = "^0.27.1"
+pydantic = "^2.6.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
