@@ -84,12 +84,17 @@ async def second_page(
 
 
 async def protected_middleware(
+    from_route: fr.FletRoute,
+    to_route: fr.FletRoute,
     page: ft.Page,
 ):
     if page.session.get("allow_access"):
         return True
     else:
-        return False
+        if from_route.name == "home_page":
+            return False
+        elif from_route.name == "second_page":
+            return fr.Location(name="home_page")
 
 
 @router.route(

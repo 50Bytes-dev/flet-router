@@ -10,8 +10,8 @@ import flet as ft
 @dataclass
 class Location:
     name: str
-    params: Optional[dict]
-    query: Optional[dict]
+    params: Optional[dict] = None
+    query: Optional[dict] = None
 
     def build_path(self, route_path: str) -> str:
         if self.params:
@@ -218,6 +218,9 @@ class FletRouter:
 
         if result is None or result is True:
             return True
+
+        if result is not False:
+            self.go_root(result)
 
         return False
 
