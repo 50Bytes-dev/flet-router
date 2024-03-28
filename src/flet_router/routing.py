@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 import inspect
-import os
+from enum import Enum
 import re
 from typing import Any, Callable, Concatenate, Coroutine, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlencode
+from pathlib import PurePath
 import flet as ft
 
 
@@ -25,7 +26,7 @@ class Location:
 
 FletRouterHandler = Callable[..., Coroutine[Any, Any, ft.View]]
 
-RoutePath = Union[str, dict, Location]
+RoutePath = Union[str, dict, Enum, Location]
 
 MiddlewareResponse = Union[None, bool, RoutePath]
 
@@ -36,7 +37,7 @@ class FletRoute:
     def __init__(
         self,
         handler: FletRouterHandler,
-        name: str,
+        name: str | Enum,
         path: str,
         middlewares: list[MiddlewareHandler],
     ):
@@ -114,7 +115,8 @@ class FletRoute:
                     f"Cannot convert {path_params[key]} to {param.annotation}"
                 )
 
-        return await self.handler(**kwargs)
+        view: ft.View = await self.handler(**kwargs)
+        return view
 
 
 class FletRouter:
@@ -141,17 +143,19 @@ class FletRouter:
         path: str,
         middlewares: list,
     ):
+        pure_path = PurePath("/", self.prefix.lstrip("/"), path.lstrip("/"))
+        path = str(pure_path)
         route = FletRoute(
             handler=handler,
             name=name,
-            path=self.prefix + path,
+            path=path,
             middlewares=middlewares,
         )
         self.routes.append(route)
 
     def route(
         self,
-        name: str = "",
+        name: str | Enum = "",
         path: str = "",
         middlewares: Optional[list] = None,
     ):
@@ -170,7 +174,6 @@ class FletRouter:
 
     def include_router(self, router: "FletRouter"):
         for route in router.routes:
-            new_path = os.path.join(self.prefix, route.path)
             new_middlewares = []
             if self.middlewares:
                 new_middlewares.extend(self.middlewares)
@@ -179,21 +182,23 @@ class FletRouter:
             self.add_route(
                 handler=route.handler,
                 name=route.name,
-                path=new_path,
+                path=route.path,
                 middlewares=new_middlewares,
             )
 
     def _resolve(self, path: RoutePath) -> Tuple[Optional[FletRoute], str]:
-        if isinstance(path, str):
-            for route in self.routes:
-                if route.match(path):
-                    return route, path
+        if isinstance(path, Enum):
+            path = Location(name=path)
         if isinstance(path, dict):
             path = Location(**path)
         if isinstance(path, Location):
             for route in self.routes:
                 if route.name == path.name:
                     return route, path.build_path(route.path)
+        if isinstance(path, str):
+            for route in self.routes:
+                if route.match(path):
+                    return route, path
         return None, ""
 
     async def _process_middleware(
@@ -229,7 +234,8 @@ class FletRouter:
         path: RoutePath,
         replace: bool = False,
     ):
-        assert self.page is not None
+        if self.page is None:
+            raise ValueError("Router is not mounted to a page")
 
         route, path = self._resolve(path)
 
@@ -253,7 +259,7 @@ class FletRouter:
         if replace and self.page.views:
             self.page.views.pop()
         if not replace:
-            self.history.append(self.page.route)
+            self.history.append(str(self.page.route))
 
         self.current_path = path
         self.page.route = path
@@ -325,10 +331,10 @@ class FletRouter:
                 middlewares=route.middlewares,
             )
 
-        router.go_root(page.route)
+        router.go_root(str(page.route))
 
         def on_connect(e: ft.ControlEvent):
-            router.go_root(page.route)
+            router.go_root(str(page.route))
 
         def on_route_change(e: ft.RouteChangeEvent):
             if router.current_path != e.route:
