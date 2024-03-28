@@ -20,4 +20,6 @@ See the example in the ```samples``` folder
 ## Installation
 
 You can install Flet Router using pip:
-```pip install git+https://github.com/50Bytes-dev/flet-router.git```
+```bash
+pip install git+https://github.com/50Bytes-dev/flet-router.git
+```

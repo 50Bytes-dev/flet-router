@@ -1,5 +1,5 @@
 import flet as ft
-import src as fr
+import flet_router as fr
 
 router = fr.FletRouter(
     prefix="/app",

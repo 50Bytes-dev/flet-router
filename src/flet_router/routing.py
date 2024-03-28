@@ -10,7 +10,7 @@ import flet as ft
 
 @dataclass
 class Location:
-    name: str
+    name: str | Enum
     params: Optional[dict] = None
     query: Optional[dict] = None
 
@@ -139,7 +139,7 @@ class FletRouter:
     def add_route(
         self,
         handler: FletRouterHandler,
-        name: str,
+        name: str | Enum,
         path: str,
         middlewares: list,
     ):
@@ -315,11 +315,22 @@ class FletRouter:
             True,
         )
 
+    def _render(
+        self,
+        default_path: Optional[str],
+    ):
+        if self.page is None:
+            raise ValueError("Router is not mounted to a page")
+        if default_path:
+            self.page.route = default_path
+        self.go_root(str(self.page.route))
+
     @classmethod
     def mount(
         cls,
         page: ft.Page,
         routes: list[FletRoute],
+        default_path: Optional[str] = None,
     ):
         router = cls(page=page)
 
@@ -331,10 +342,10 @@ class FletRouter:
                 middlewares=route.middlewares,
             )
 
-        router.go_root(str(page.route))
+        router._render(default_path)
 
         def on_connect(e: ft.ControlEvent):
-            router.go_root(str(page.route))
+            router._render(default_path)
 
         def on_route_change(e: ft.RouteChangeEvent):
             if router.current_path != e.route:
