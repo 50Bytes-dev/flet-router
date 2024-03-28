@@ -271,59 +271,61 @@ all = ["email-validator (>=2.0.0)", "httpx (>=0.23.0)", "itsdangerous (>=1.1.0)"
 
 [[package]]
 name = "flet"
-version = "0.20.2"
+version = "0.21.2"
 description = "Flet for Python - easily build interactive multi-platform apps in Python"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = true
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "flet-0.21.2-py3-none-any.whl", hash = "sha256:675fe5b6bf225fe3fcb95840401c7b6d36adacfb2c5f40e7f786541a8c900117"},
+    {file = "flet-0.21.2-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:d2447291ddc8aa8dd234aea0afd5ce54de4f268ed75a5f614453ff771fe3f33a"},
+    {file = "flet-0.21.2-py3-none-macosx_12_0_arm64.whl", hash = "sha256:fff79b4520b89fe4053612a03bd7c491f970e5e340006e9dd8179ef16c348ff4"},
+    {file = "flet-0.21.2-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d39a3693b6035e100d9c3ce70e800306e760b65364a097635dfe778b6ea581b9"},
+    {file = "flet-0.21.2-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:a6c75c0e4635999cd0e8b322a8d9a6a4d91ab1ba71a2dd07affb4e84f2038a05"},
+    {file = "flet-0.21.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:675ee595eed1d27b165283d49fefa4348b892f48735717a0145aa99cfcf9c6fb"},
+    {file = "flet-0.21.2-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:4523c88f0350d6acdaa111fbcb1c034f145e1309e499c765332a7af55a51a240"},
+    {file = "flet-0.21.2-py3-none-win32.whl", hash = "sha256:0b0a86a46662df08377beb3cc040a86d7f3371a688a0832ea456bc09bdec10c1"},
+    {file = "flet-0.21.2-py3-none-win_amd64.whl", hash = "sha256:eaa331b65bc65b5e6a95e54dfd644850d080364fb8ad1bfed0517f64813db92f"},
+    {file = "flet-0.21.2.tar.gz", hash = "sha256:7ca8cae2fb3bb3f46254b718d14bd522d392119581093ec914477acde06c407b"},
+]
 
 [package.dependencies]
-cookiecutter = "^2.6.0"
-fastapi = "^0"
-flet-runtime = "0.1.0"
-packaging = "^23.1"
-qrcode = "^7.4.2"
-uvicorn = {version = "^0", extras = ["standard"]}
-watchdog = "^4.0.0"
-
-[package.source]
-type = "directory"
-url = "../flet/sdk/python/packages/flet"
+cookiecutter = ">=2.6.0,<3.0.0"
+fastapi = ">=0,<1"
+flet-runtime = "0.21.2"
+packaging = ">=23.1,<24.0"
+qrcode = ">=7.4.2,<8.0.0"
+uvicorn = {version = ">=0,<1", extras = ["standard"]}
+watchdog = ">=4.0.0,<5.0.0"
 
 [[package]]
 name = "flet-core"
-version = "0.1.0"
+version = "0.21.2"
 description = "Flet core library"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = true
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "flet_core-0.21.2-py3-none-any.whl", hash = "sha256:22681ef245c49e4634852184bb4bcc454e17bb9cc5bc776517bbad4ec28d22f8"},
+    {file = "flet_core-0.21.2.tar.gz", hash = "sha256:f6d849f6bc5b0c5ee15ec228ab23f99dd3026fdda7db5a5042c85fb59963e891"},
+]
 
 [package.dependencies]
-repath = "^0.9.0"
-
-[package.source]
-type = "directory"
-url = "../flet/sdk/python/packages/flet-core"
+repath = ">=0.9.0,<0.10.0"
 
 [[package]]
 name = "flet-runtime"
-version = "0.1.0"
+version = "0.21.2"
 description = "Flet Runtime - a base package for Flet desktop and Flet mobile."
 optional = false
-python-versions = "^3.8"
-files = []
-develop = true
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "flet_runtime-0.21.2-py3-none-any.whl", hash = "sha256:ada12205fa24e8b2732bdda84b89ca958cc7523b6ff4b832a96cfb32bc84defc"},
+    {file = "flet_runtime-0.21.2.tar.gz", hash = "sha256:230d2fa758eab77c8e8f517a9c1f390926c30610b348a29b8c211dfcf63376a0"},
+]
 
 [package.dependencies]
-flet-core = "0.1.0"
-httpx = "^0"
-oauthlib = "^3.2.2"
-
-[package.source]
-type = "directory"
-url = "../flet/sdk/python/packages/flet-runtime"
+flet-core = "0.21.2"
+httpx = ">=0,<1"
+oauthlib = ">=3.2.2,<4.0.0"
 
 [[package]]
 name = "h11"
@@ -338,13 +340,13 @@ files = [
 
 [[package]]
 name = "httpcore"
-version = "1.0.4"
+version = "1.0.5"
 description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpcore-1.0.4-py3-none-any.whl", hash = "sha256:ac418c1db41bade2ad53ae2f3834a3a0f5ae76b56cf5aa497d2d033384fc7d73"},
-    {file = "httpcore-1.0.4.tar.gz", hash = "sha256:cb2839ccfcba0d2d3c1131d3c3e26dfc327326fbe7a5dc0dbfe9f6c9151bb022"},
+    {file = "httpcore-1.0.5-py3-none-any.whl", hash = "sha256:421f18bac248b25d310f3cacd198d55b8e6125c107797b609ff9b7a6ba7991b5"},
+    {file = "httpcore-1.0.5.tar.gz", hash = "sha256:34a38e2f9291467ee3b44e89dd52615370e152954ba21721378a87b2960f7a61"},
 ]
 
 [package.dependencies]
@@ -355,7 +357,7 @@ h11 = ">=0.13,<0.15"
 asyncio = ["anyio (>=4.0,<5.0)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
-trio = ["trio (>=0.22.0,<0.25.0)"]
+trio = ["trio (>=0.22.0,<0.26.0)"]
 
 [[package]]
 name = "httptools"
@@ -1267,4 +1269,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "891ca869cfe180e9ee708de241ad70722e9d4c4224b1b3501838ff3e5ddfd8cf"
+content-hash = "72c46d0bf53fc2845184ef71486981d5110048d347967a59a61c936599b0def5"
