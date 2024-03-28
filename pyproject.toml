@@ -5,7 +5,7 @@ description = "Simple and fast router for Flet"
 authors = ["50bytes.dev <50bytes.dev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [{ include = "flet_router", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
