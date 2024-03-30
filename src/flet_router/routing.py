@@ -143,12 +143,15 @@ class FletRouter:
         path: str,
         middlewares: list,
     ):
-        pure_path = PurePath("/", self.prefix.lstrip("/"), path.lstrip("/"))
-        path = str(pure_path)
+        pure_path = PurePath(
+            "/",
+            self.prefix.lstrip("/"),
+            path.lstrip("/"),
+        )
         route = FletRoute(
             handler=handler,
             name=name,
-            path=path,
+            path=str(pure_path),
             middlewares=middlewares,
         )
         self.routes.append(route)

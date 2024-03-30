@@ -9,10 +9,7 @@ packages = [{ include = "flet_router", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-# flet = "^0.21.2"
-flet = {path = "../flet/sdk/python/packages/flet", develop = true}
-flet-core = {path = "../flet/sdk/python/packages/flet-core", develop = true}
-flet-runtime = {path = "../flet/sdk/python/packages/flet-runtime", develop = true}
+flet = "^0.21.2"
 
 [tool.poetry.dev-dependencies]
 uvicorn = "^0.27.1"
