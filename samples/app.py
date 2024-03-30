@@ -130,10 +130,12 @@ async def main(page: ft.Page):
         )
     )
 
-    fr.FletRouter.mount(
+    app_router = fr.FletRouter.mount(
         page,
         routes=router.routes,
     )
+
+    app_router.go_root("/app")
 
 
 app = ft.app(main, export_asgi_app=True)
