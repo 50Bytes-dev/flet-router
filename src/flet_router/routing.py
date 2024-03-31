@@ -46,9 +46,11 @@ class FletRoute:
         self.path = path
         self.middlewares = middlewares
 
-        self.pattern = re.compile(
-            "^" + path.replace("{", "(?P<").replace("}", ">[^/]+)") + "$"
-        )
+        patter_path = re.sub(r"{([^/]+)}", r"(?P<\1>[^/]+)", path)
+        try:
+            self.pattern = re.compile("^" + patter_path + "$")
+        except re.error as e:
+            raise ValueError(f"Invalid path pattern: {path}")
 
     def extract_params(self, path: str) -> dict:
         params = {}
