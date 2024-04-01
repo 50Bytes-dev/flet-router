@@ -30,7 +30,7 @@ RoutePath = Union[str, dict, Enum, Location]
 
 MiddlewareResponse = Union[None, bool, RoutePath]
 
-MiddlewareHandler = Callable[Concatenate[...], Coroutine[Any, Any, MiddlewareResponse]]
+MiddlewareHandler = Callable[..., Coroutine[Any, Any, MiddlewareResponse]]
 
 
 class FletRoute:
