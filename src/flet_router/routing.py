@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import inspect
 from enum import Enum
 import re
-from typing import Any, Callable, Coroutine, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlencode
 from pathlib import PurePath
 import flet as ft
@@ -10,7 +10,7 @@ import flet as ft
 
 @dataclass
 class Location:
-    name: str | Enum
+    name: Union[str, Enum]
     params: Optional[dict] = None
     query: Optional[dict] = None
 
@@ -37,9 +37,9 @@ class FletRoute:
     def __init__(
         self,
         handler: FletRouterHandler,
-        name: str | Enum,
+        name: Union[str, Enum],
         path: str,
-        middlewares: list[MiddlewareHandler],
+        middlewares: List[MiddlewareHandler],
     ):
         self.handler = handler
         self.name = name
@@ -141,7 +141,7 @@ class FletRouter:
     def add_route(
         self,
         handler: FletRouterHandler,
-        name: str | Enum,
+        name: Union[str, Enum],
         path: str,
         middlewares: list,
     ):
@@ -160,7 +160,7 @@ class FletRouter:
 
     def route(
         self,
-        name: str | Enum = "",
+        name: Union[str, Enum] = "",
         path: str = "",
         middlewares: Optional[list] = None,
     ):
@@ -334,7 +334,7 @@ class FletRouter:
     def mount(
         cls,
         page: ft.Page,
-        routes: list[FletRoute],
+        routes: List[FletRoute],
         default_path: Optional[str] = None,
     ):
         router = cls(page=page)
