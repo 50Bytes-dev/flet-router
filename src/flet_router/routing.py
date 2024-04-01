@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import inspect
 from enum import Enum
 import re
-from typing import Any, Callable, Concatenate, Coroutine, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlencode
 from pathlib import PurePath
 import flet as ft
