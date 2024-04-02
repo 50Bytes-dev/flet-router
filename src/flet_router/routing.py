@@ -4,7 +4,6 @@ from enum import Enum
 import re
 from typing import Any, Callable, Coroutine, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlencode
-from pathlib import PurePath
 import flet as ft
 
 
@@ -145,15 +144,11 @@ class FletRouter:
         path: str,
         middlewares: list,
     ):
-        pure_path = PurePath(
-            "/",
-            self.prefix.lstrip("/"),
-            path.lstrip("/"),
-        )
+        path = f"/{self.prefix.strip('/')}/{path.strip('/')}".rstrip("/")
         route = FletRoute(
             handler=handler,
             name=name,
-            path=str(pure_path),
+            path=path,
             middlewares=middlewares,
         )
         self.routes.append(route)
