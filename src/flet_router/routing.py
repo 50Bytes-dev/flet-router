@@ -3,7 +3,7 @@ import inspect
 from enum import Enum
 import re
 from typing import Any, Callable, Coroutine, List, Optional, Tuple, Union
-from urllib.parse import parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, urljoin
 import flet as ft
 
 
@@ -137,6 +137,11 @@ class FletRouter:
         self.current_path: Optional[str] = None
         self.current_route: Optional[FletRoute] = None
 
+    def _create_url_path(self, *segments: str):
+        return "/" + "/".join(
+            segment.strip("/") for segment in segments if segment.strip("/")
+        )
+
     def add_route(
         self,
         handler: FletRouterHandler,
@@ -144,7 +149,7 @@ class FletRouter:
         path: str,
         middlewares: list,
     ):
-        path = f"/{self.prefix.strip('/')}/{path.strip('/')}".rstrip("/")
+        path = self._create_url_path(self.prefix, path)
         route = FletRoute(
             handler=handler,
             name=name,
