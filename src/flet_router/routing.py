@@ -21,10 +21,6 @@ import flet as ft
 class RouteView(abc.ABC):
 
     @abc.abstractmethod
-    def __init__(self):
-        pass
-
-    @abc.abstractmethod
     async def build(*args, **kwargs) -> ft.View:
         raise NotImplementedError
 
