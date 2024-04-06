@@ -1,10 +1,40 @@
+import abc
 from dataclasses import dataclass
 import inspect
 from enum import Enum
 import re
-from typing import Any, Callable, Coroutine, List, Optional, Tuple, Union
-from urllib.parse import parse_qs, urlencode, urljoin
+from typing import (
+    Any,
+    Callable,
+    Coroutine,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+from urllib.parse import parse_qs, urlencode
 import flet as ft
+
+
+class RouteView(abc.ABC):
+
+    @abc.abstractmethod
+    def __init__(self):
+        pass
+
+    @abc.abstractmethod
+    async def build(*args, **kwargs) -> ft.View:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def before_enter(*args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    async def before_leave(*args, **kwargs):
+        pass
 
 
 @dataclass
@@ -23,7 +53,9 @@ class Location:
         return route_path
 
 
-FletRouterHandler = Callable[..., Coroutine[Any, Any, ft.View]]
+RouteCallableHandler = Callable[..., Coroutine[Any, Any, ft.View]]
+
+RouteHandler = Union[RouteCallableHandler, RouteView, Type[RouteView]]
 
 RoutePath = Union[str, dict, Enum, Location]
 
@@ -35,7 +67,7 @@ MiddlewareHandler = Callable[..., Coroutine[Any, Any, MiddlewareResponse]]
 class FletRoute:
     def __init__(
         self,
-        handler: FletRouterHandler,
+        handler: RouteHandler,
         name: Union[str, Enum],
         path: str,
         middlewares: List[MiddlewareHandler],
@@ -44,6 +76,35 @@ class FletRoute:
         self.name = name
         self.path = path
         self.middlewares = middlewares
+
+        self._before_enter = None
+        self._before_leave = None
+
+        if (
+            inspect.isclass(self.handler)
+            and not isinstance(self.handler, RouteView)
+            and issubclass(self.handler, RouteView)
+        ):
+            # initialize handler class
+            self.handler = self.handler()
+
+        if inspect.isfunction(self.handler):
+            self._build = self.handler
+        elif isinstance(self.handler, RouteView):
+            _build: Optional[RouteCallableHandler] = getattr(
+                self.handler, "build", None
+            )
+            if _build is None:
+                raise ValueError(
+                    f"Class {self.handler.__name__} must implement a build method"
+                )
+            self._build = _build
+            self._before_enter = getattr(self.handler, "before_enter", None)
+            self._before_leave = getattr(self.handler, "before_leave", None)
+        else:
+            raise ValueError(
+                f"Invalid handler type in route {self.name}: {self.handler}"
+            )
 
         patter_path = re.sub(r"{([^/]+)}", r"(?P<\1>[^/]+)", path)
         try:
@@ -75,14 +136,9 @@ class FletRoute:
         only_path = path.split("?")[0]
         return bool(re.match(self.pattern, only_path))
 
-    async def view(
-        self,
-        path: str,
-        page: ft.Page,
-        router: "FletRouter",
-    ) -> ft.View:
+    def _prepare_kwargs(self, func, path, page, router):
 
-        handler_params = inspect.signature(self.handler).parameters
+        handler_params = inspect.signature(func).parameters
 
         kwargs = {}
         if "page" in handler_params:
@@ -116,8 +172,37 @@ class FletRoute:
                     f"Cannot convert {path_params[key]} to {param.annotation}"
                 )
 
-        view: ft.View = await self.handler(**kwargs)
+        return kwargs
+
+    async def before_leave(self, path: str, page: ft.Page, router: "FletRouter"):
+        if self._before_leave is None:
+            return
+
+        kwargs = self._prepare_kwargs(self._before_leave, path, page, router)
+        await self._before_leave(**kwargs)
+
+    async def before_enter(self, path: str, page: ft.Page, router: "FletRouter"):
+        if self._before_enter is None:
+            return
+
+        kwargs = self._prepare_kwargs(self._before_enter, path, page, router)
+        await self._before_enter(**kwargs)
+
+    async def view(
+        self,
+        path: str,
+        page: ft.Page,
+        router: "FletRouter",
+    ) -> ft.View:
+        kwargs = self._prepare_kwargs(self._build, path, page, router)
+        view: ft.View = await self._build(**kwargs)
         return view
+
+    def __str__(self) -> str:
+        return f"FletRoute({self.name}, {self.path})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class FletRouter:
@@ -144,7 +229,7 @@ class FletRouter:
 
     def add_route(
         self,
-        handler: FletRouterHandler,
+        handler: RouteHandler,
         name: Union[str, Enum],
         path: str,
         middlewares: list,
@@ -165,15 +250,15 @@ class FletRouter:
         middlewares: Optional[list] = None,
     ):
         def decorator(
-            func: FletRouterHandler,
+            handler: RouteHandler,
         ):
             self.add_route(
-                handler=func,
+                handler=handler,
                 name=name,
                 path=path,
                 middlewares=middlewares or list(),
             )
-            return func
+            return handler
 
         return decorator
 
@@ -254,12 +339,28 @@ class FletRouter:
                 if result is False:
                     return
 
+        if self.current_route:
+            await self.current_route.before_leave(
+                path,
+                self.page,
+                self,
+            )
+
         self.current_route = route
 
         if route is None:
             view = ft.View()
         else:
-            view = await route.view(path, self.page, self)
+            await route.before_enter(
+                path,
+                self.page,
+                self,
+            )
+            view = await route.view(
+                path,
+                self.page,
+                self,
+            )
 
         if replace and self.page.views:
             self.page.views.pop()

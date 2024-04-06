@@ -1,3 +1,4 @@
+from typing import final
 import flet as ft
 import flet_router as fr
 
@@ -36,6 +37,9 @@ async def home_page(
         )
 
     def on_click_4(e):
+        router.go_push("/app/class")
+
+    def on_click_5(e):
         router.go_push("/app/protected")
 
     def on_change(e: ft.ControlEvent):
@@ -46,7 +50,8 @@ async def home_page(
             ft.ElevatedButton("Go to second page by path", on_click=on_click_1),
             ft.ElevatedButton("Go to second page by dict", on_click=on_click_2),
             ft.ElevatedButton("Go to second page by Location", on_click=on_click_3),
-            ft.ElevatedButton("Go to protected page", on_click=on_click_4),
+            ft.ElevatedButton("Go to class route page", on_click=on_click_4),
+            ft.ElevatedButton("Go to protected page", on_click=on_click_5),
             ft.Switch(
                 label="Allow access to protected page",
                 on_change=on_change,
@@ -119,6 +124,41 @@ async def protected_page(
     )
 
 
+@router.route(
+    name="class_route",
+    path="/class",
+)
+class ClassRoute(fr.RouteView):
+
+    def __init__(self):
+        # Optional method called when app is started
+        print("ClassRoute: __init__")
+
+    async def before_enter(self):
+        # Optional method
+        print("ClassRoute: before_enter")
+
+    async def before_leave(self):
+        # Optional method
+        print("ClassRoute: before_leave")
+
+    async def build(
+        self,
+        router: fr.FletRouter,
+    ):
+        print("ClassRoute: build")
+
+        def on_click(e):
+            router.back()
+
+        return ft.View(
+            controls=[
+                ft.ElevatedButton("Back", on_click=on_click),
+                ft.Text("Class route. Check console output"),
+            ],
+        )
+
+
 async def main(page: ft.Page):
     page.theme = ft.Theme(
         page_transitions=ft.PageTransitionsTheme(
@@ -139,6 +179,7 @@ async def main(page: ft.Page):
 
 
 app = ft.app(main, export_asgi_app=True)
+
 
 if __name__ == "__main__":
     import uvicorn
