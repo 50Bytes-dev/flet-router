@@ -444,10 +444,10 @@ class FletRouter:
                 middlewares=route.middlewares,
             )
 
-        router._render(default_path)
+        router._render(default_path or page.route)
 
         def on_connect(e: ft.ControlEvent):
-            router._render(default_path)
+            router._render(default_path or page.route)
 
         def on_route_change(e: ft.RouteChangeEvent):
             if router.current_path != e.route:
