@@ -2,7 +2,7 @@ from typing import final
 import flet as ft
 import flet_router as fr
 
-router = fr.FletRouter(
+router = fr.Router(
     prefix="/app",
 )
 
@@ -11,7 +11,7 @@ router = fr.FletRouter(
     name="home_page",
 )
 async def home_page(
-    router: fr.FletRouter,
+    router: fr.Router,
     page: ft.Page,
 ):
 
@@ -66,7 +66,7 @@ async def home_page(
     path="/second/{variable}/value",
 )
 async def second_page(
-    router: fr.FletRouter,
+    router: fr.Router,
     variable: int,
     query_variable: str = "Not defined",
 ):
@@ -89,8 +89,8 @@ async def second_page(
 
 
 async def protected_middleware(
-    from_route: fr.FletRoute,
-    to_route: fr.FletRoute,
+    from_route: fr.Route,
+    to_route: fr.Route,
     page: ft.Page,
 ):
     if page.session.get("allow_access"):
@@ -108,7 +108,7 @@ async def protected_middleware(
     middlewares=[protected_middleware],
 )
 async def protected_page(
-    router: fr.FletRouter,
+    router: fr.Router,
     page: ft.Page,
 ):
 
@@ -144,7 +144,7 @@ class ClassRoute(fr.RouteView):
 
     async def build(
         self,
-        router: fr.FletRouter,
+        router: fr.Router,
     ):
         print("ClassRoute: build")
 
@@ -170,7 +170,7 @@ async def main(page: ft.Page):
         )
     )
 
-    app_router = fr.FletRouter.mount(
+    app_router = fr.Router.mount(
         page,
         routes=router.routes,
     )

@@ -346,7 +346,7 @@ class Router:
 
         if route is None:
             view = ft.View(
-                bgcolor=self.page.bgcolor,
+                bgcolor=f"{self.page.bgcolor}",
             )
         else:
             await route.before_enter(
