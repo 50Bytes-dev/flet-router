@@ -1,1 +1,1 @@
-from .routing import FletRouter, FletRoute, Location, RouteView
+from .routing import Router, Route, Location, RouteView

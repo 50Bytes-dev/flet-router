@@ -60,7 +60,7 @@ MiddlewareResponse = Union[None, bool, RoutePath]
 MiddlewareHandler = Callable[..., Coroutine[Any, Any, MiddlewareResponse]]
 
 
-class FletRoute:
+class Route:
     def __init__(
         self,
         handler: RouteHandler,
@@ -170,14 +170,14 @@ class FletRoute:
 
         return kwargs
 
-    async def before_leave(self, path: str, page: ft.Page, router: "FletRouter"):
+    async def before_leave(self, path: str, page: ft.Page, router: "Router"):
         if self._before_leave is None:
             return
 
         kwargs = self._prepare_kwargs(self._before_leave, path, page, router)
         await self._before_leave(**kwargs)
 
-    async def before_enter(self, path: str, page: ft.Page, router: "FletRouter"):
+    async def before_enter(self, path: str, page: ft.Page, router: "Router"):
         if self._before_enter is None:
             return
 
@@ -188,7 +188,7 @@ class FletRoute:
         self,
         path: str,
         page: ft.Page,
-        router: "FletRouter",
+        router: "Router",
     ) -> ft.View:
         kwargs = self._prepare_kwargs(self._build, path, page, router)
         view: ft.View = await self._build(**kwargs)
@@ -201,7 +201,7 @@ class FletRoute:
         return str(self)
 
 
-class FletRouter:
+class Router:
 
     def __init__(
         self,
@@ -213,10 +213,10 @@ class FletRouter:
         self.middlewares = middlewares
         self.page = page
 
-        self.routes: list[FletRoute] = []
+        self.routes: list[Route] = []
         self.history: list[str] = []
         self.current_path: Optional[str] = None
-        self.current_route: Optional[FletRoute] = None
+        self.current_route: Optional[Route] = None
 
     def _create_url_path(self, *segments: str):
         return "/" + "/".join(
@@ -231,7 +231,7 @@ class FletRouter:
         middlewares: list,
     ):
         path = self._create_url_path(self.prefix, path)
-        route = FletRoute(
+        route = Route(
             handler=handler,
             name=name,
             path=path,
@@ -258,7 +258,7 @@ class FletRouter:
 
         return decorator
 
-    def include_router(self, router: "FletRouter"):
+    def include_router(self, router: "Router"):
         for route in router.routes:
             new_middlewares = []
             if self.middlewares:
@@ -272,7 +272,7 @@ class FletRouter:
                 middlewares=new_middlewares,
             )
 
-    def _resolve(self, path: RoutePath) -> Tuple[Optional[FletRoute], str]:
+    def _resolve(self, path: RoutePath) -> Tuple[Optional[Route], str]:
         if isinstance(path, Enum):
             path = Location(name=path)
         if isinstance(path, dict):
@@ -289,8 +289,8 @@ class FletRouter:
 
     async def _process_middleware(
         self,
-        to_route: FletRoute,
-        from_route: Optional[FletRoute],
+        to_route: Route,
+        from_route: Optional[Route],
         middleware_handler: MiddlewareHandler,
     ):
         handler_params = inspect.signature(middleware_handler).parameters
@@ -345,7 +345,9 @@ class FletRouter:
         self.current_route = route
 
         if route is None:
-            view = ft.View()
+            view = ft.View(
+                bgcolor=self.page.bgcolor,
+            )
         else:
             await route.before_enter(
                 path,
@@ -369,6 +371,9 @@ class FletRouter:
         self.page.update()
 
     def go_push(self, path: RoutePath):
+        """
+        path: route name, route path or Location object
+        """
         if self.page is None:
             raise ValueError("Router is not mounted to a page")
 
@@ -423,15 +428,17 @@ class FletRouter:
     ):
         if self.page is None:
             raise ValueError("Router is not mounted to a page")
+        if self.page.controls:
+            self.page.controls.clear()
         if default_path:
             self.page.route = default_path
-        self.go_root(str(self.page.route))
+        self.go_root(self.page.route)
 
     @classmethod
     def mount(
         cls,
         page: ft.Page,
-        routes: List[FletRoute],
+        routes: List[Route],
         default_path: Optional[str] = None,
     ):
         router = cls(page=page)
@@ -446,14 +453,14 @@ class FletRouter:
 
         router._render(default_path or page.route)
 
-        def on_connect(e: ft.ControlEvent):
-            router._render(default_path or page.route)
+        # def on_connect(e: ft.ControlEvent):
+        #     router._render(default_path or page.route)
 
         def on_route_change(e: ft.RouteChangeEvent):
             if router.current_path != e.route:
                 router.go_root(e.route)
 
-        page.on_connect = on_connect
+        # page.on_connect = on_connect
         page.on_route_change = on_route_change
 
         return router
